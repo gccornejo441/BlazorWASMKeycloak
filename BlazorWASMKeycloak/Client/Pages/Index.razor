@@ -1,0 +1,76 @@
+﻿@page "/"
+
+@using Microsoft.AspNetCore.Components.Authorization
+@using Microsoft.AspNetCore.Components.WebAssembly.Authentication
+@using System.Security.Claims
+
+
+@inject AuthenticationStateProvider AuthenticationStateProvider
+
+<PageTitle>Index</PageTitle>
+
+<h1>BlazorWASM Keycloak Authentication</h1>
+
+This application demonstrates how to integrate with Keycloak from BlazorWASM application.
+
+@if (claims.Count() > 0)
+{
+    <h2>User Claims:</h2>
+    <ul>
+        @foreach (var claim in claims)
+        {
+            <li>@claim.Type: @claim.Value</li>
+        }
+    </ul>
+}
+
+@code {
+    private IEnumerable<Claim> claims = Enumerable.Empty<Claim>();
+
+    protected override Task OnInitializedAsync() => GetClaimsPrincipalData();
+
+    private async Task GetClaimsPrincipalData()
+    {
+
+        // if (tokenResult.TryGetToken(out var token))
+        // {
+        // }
+
+        var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+        var user = authState.User;
+        if (user.Identity?.IsAuthenticated ?? false)
+        {
+            claims = user.Claims;
+        }
+    }
+
+    // private async Task GetClaimsPrincipalData()
+    // {
+    //     var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+    //     var user = authState.User;
+
+    //     if (user.Identity?.IsAuthenticated ?? false)
+    //     {
+    //         claims = user.Claims;
+
+    //         // Call your WebAPI to get the user's role using the claims token
+    //         var role = await GetRoleFromWebAPI(user); // Create this method
+    //                                                   // Do something with the role, e.g., store it in a variable or display it
+    //     }
+    // }
+
+    // private async Task<string> GetRoleFromWebAPI(ClaimsPrincipal user)
+    // {
+    //     // Create an HttpClient instance using the "ServerAPI" named client you configured
+    //     var httpClient = new HttpClient();
+    //     httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", user.FindFirstValue("access_token"));
+
+    //     // Make a request to your WebAPI endpoint to get the user's role
+    //     var response = await httpClient.GetAsync("api/roles"); // Adjust the endpoint URL
+    //     response.EnsureSuccessStatusCode();
+
+    //     var role = await response.Content.ReadAsStringAsync();
+    //     return role;
+    // }
+
+}
